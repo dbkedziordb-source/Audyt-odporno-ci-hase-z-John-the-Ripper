@@ -1,0 +1,1 @@
+# Audyt-odporno-ci-hase-z-John-the-Ripper
