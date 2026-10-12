@@ -1,0 +1,40 @@
+Zadanie jest przeznaczone do robienia w parach a ja robiłem sam, więc na początku jako audytor stworzyłem plik slownik.txt w nano z hasłami:
+Kurs2026!
+LearnIT2026!
+Haslo123!
+Admin123!
+Test123!
+Maciek123!
+Gabi123!
+
+A jako autor wybrałem hasło LearnIT2026!
+
+#utworzenie surowego hasha SHA-256 i zapisanie go w pliku zrozumiałym dla Johna
+printf '%s' 'LearnIT2026!' | sha256sum
+15be4076c30104b8799c98cd98be7b7d8206a787301bdc28ddcf2354ba161ce6
+printf '%s\n' '15be4076c30104b8799c98cd98be7b7d8206a787301bdc28ddcf2354ba161ce6' > hash_sha256.txt
+
+#Przeprowadzam atak słownikowy w John the Ripper i wyświetlam znalezione hasło jeśli John jakieś odzyskał
+john --format=Raw-SHA256 --wordlist=slownik.txt hash_sha256.txt
+john --show --format=Raw-SHA256 hash_sha256.txt
+?:LearnIT2026!
+
+#Generuję hash bcrypt tego samego hasła i przypisuję je dwóm testowym użytkownikom
+python3 - <<'PY'
+import bcrypt
+haslo = b'LearnIT2026!'
+koszt = 12
+hash1 = bcrypt.hashpw(haslo, bcrypt.gensalt(rounds=koszt))
+hash2 = bcrypt.hashpw(haslo, bcrypt.gensalt(rounds=koszt))
+print("Użytkownik testowy 1:", hash1.decode())
+print("Użytkownik testowy 2:", hash2.decode())
+print("Ten sam hash:", hash1 == hash2)
+PY
+
+Użytkownik testowy 1: $2b$12$1J8kW22pt.NBIBlFwdkFv.hrNYTi2q9RDLhv9VRewzKcZy6sC.P4G
+Użytkownik testowy 2: $2b$12$aDneCDGGpK40jrZOYyD0DeHjVKaRkMaaqO8qUslT0f1RuY9VRWlWO
+Ten sam hash: False
+
+Atakujący, który uzyskałby dostęp do bazy danych, zobaczyłby różne hashe bcrypt.
+
+
