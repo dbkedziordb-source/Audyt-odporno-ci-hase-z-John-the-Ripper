@@ -1,0 +1,20 @@
+# Wyniki audytu haseł – SHA-256 i bcrypt
+
+| Test                               | Czy znaleziono hasło? | Co zaobserwowaliśmy?                                                                                               | Jaki jest wniosek?                                                                                                     |
+| ---------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| SHA-256, hasło w słowniku          | Tak                   | Hash pasował do jednego z haseł znajdujących się w słowniku.                                                       | SHA-256 pozwala szybko sprawdzać hasła, dlatego nie jest zalecany do przechowywania haseł użytkowników.           |
+| bcrypt, hasło w słowniku           | Tak                   | Hasło zostało znalezione, ale sprawdzanie kandydatów trwało dłużej niż w przypadku SHA-256.                        | bcrypt spowalnia próby odgadywania haseł dzięki celowo wysokiemu kosztowi obliczeniowemu.                              |
+| Dwa hashe bcrypt tego samego hasła | Tak, dla obu hashy    | Oba hashe były różne, mimo że powstały z tego samego hasła. Hasło można było zweryfikować względem każdego z nich. | Losowa sól powoduje, że identyczne hasła mają różne hashe.                                                             |
+| Hasło usunięte ze słownika         | Nie                   | Po usunięciu hasła ze słownika nie udało się go odnaleźć przy użyciu pozostałych kandydatów.                       | Brak wyniku nie oznacza, że hasła nie da się odgadnąć inną metodą. Oznacza jedynie niepowodzenie tej konkretnej próby. |
+
+1. Dlaczego ograniczenie liczby prób logowania nie zatrzyma atakującego, który zdobył kopię bazy hashy?
+Ograniczenie liczby prób logowania chroni przed wielokrotnym wpisywaniem haseł bezpośrednio na stronie logowania. 
+Jeśli atakujący zdobędzie kopię bazy hashy, może próbować odgadywać hasła lokalnie, na własnym komputerze, bez korzystania z formularza logowania. Dlatego samo ograniczenie prób logowania nie wystarczy.
+
+2. Jakie oddzielne problemy rozwiązują sól i koszt obliczeniowy?
+Sól to losowa wartość dodawana podczas haszowania hasła. Dzięki niej identyczne hasła otrzymują różne hashe, co utrudnia rozpoznawanie powtarzających się haseł.
+Koszt obliczeniowy określa, ile pracy wymaga obliczenie hasha. Im odpowiednio wyższy koszt, tym wolniej atakujący może sprawdzać kolejne kandydatury haseł.
+
+3. Jaki mechanizm przechowywania haseł wybralibyście do nowej aplikacji i dlaczego?
+Wybrałbym bcrypt z odpowiednio dobranym kosztem obliczeniowym i automatycznie generowaną, unikalną solą. Bcrypt jest przeznaczony do przechowywania haseł i celowo spowalnia próby ich odgadywania. 
+Dodatkowo sól sprawia, że identyczne hasła mają różne hashe. Koszt należy dobrać do wydajności aplikacji i regularnie oceniać.
